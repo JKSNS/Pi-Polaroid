@@ -7,7 +7,7 @@
 #include "log.h"
 
 void camera_capture_data(uint8_t *buf, size_t bufsize) {
-    char tmp_file_name[16] = "ecen-224-XXXXXX";
+    char tmp_file_name[16] = "XXXXXX";
     char *command = "libcamera-still -n --immediate -e bmp --width 128 --height 128 -o ";
 
     // Create the temporary file
