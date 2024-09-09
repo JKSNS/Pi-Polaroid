@@ -19,13 +19,11 @@
 #define MAX_FILE_NAME 255
 #define MAX_TEXT_SIZE 400
 
-// Colors — Feel free to change these to fit your preference
 #define BACKGROUND_COLOR WHITE
 #define FONT_COLOR BLACK
 #define SELECTED_BG_COLOR BYU_BLUE
 #define SELECTED_FONT_COLOR BYU_LIGHT_SAND
 
-// Makes sure to deinitialize everything before program close
 void intHandler(int dummy) {
     log_info("Exiting...");
     display_exit();
