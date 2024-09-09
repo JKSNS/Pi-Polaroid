@@ -23,7 +23,6 @@
 #define MAX_TEXT_SIZE 400
 #define MAX_FILE_NAME 100
 
-// Colors — Feel free to change these to fit your preference
 #define BACKGROUND_COLOR WHITE
 #define FONT_COLOR BLACK
 #define SELECTED_BG_COLOR BYU_BLUE
@@ -32,30 +31,26 @@
 int SEND_STATUS = 0;
 uint8_t imageBuffer[IMG_SIZE];
 
-// Makes sure to deinitialize everything before program close
 void intHandler(int dummy) {
     log_info("Exiting...");
     display_exit();
     exit(0);
 }
 
-// Function to get file entries in a directory
 int get_entries(char *folder, char entries[][MAX_FILE_NAME]) {
     DIR *dir;
     struct dirent *entry;
     int count = 0;
 
-    dir = opendir(folder); // Open directory
+    dir = opendir(folder);
     if (dir == NULL) {
         log_error("Could not open directory %s", folder);
-        return -1; // Return error if directory cannot be opened
+        return -1;
     }
 
-    // Read directory entries
     while ((entry = readdir(dir)) != NULL) {
-        // Filter files by extension (.bmp or .log)
         if (strstr(entry->d_name, ".bmp") != NULL || strstr(entry->d_name, ".log") != NULL) {
-            strcpy(entries[count], entry->d_name); // Copy file name
+            strcpy(entries[count], entry->d_name);
             count++;
             if (count >= MAX_ENTRIES) {
                 break;
@@ -63,11 +58,10 @@ int get_entries(char *folder, char entries[][MAX_FILE_NAME]) {
         }
     }
 
-    closedir(dir); // Close directory
-    return count;  // Return number of entries found
+    closedir(dir);
+    return count;
 }
 
-// Function to draw the menu on display
 void draw_menu(char entries[][MAX_FILE_NAME], int num_entries, int selected) {
     display_clear(BACKGROUND_COLOR);
 
@@ -101,40 +95,33 @@ void draw_menu(char entries[][MAX_FILE_NAME], int num_entries, int selected) {
     }
 }
 
-// Function to display file content or image
 void draw_file(char *folder, char *file_name) {
     char file_path[MAX_FILE_NAME];
-    snprintf(file_path, MAX_FILE_NAME, "%s%s", folder,
-             file_name); // Concatenate folder and file name
+    snprintf(file_path, MAX_FILE_NAME, "%s%s", folder, file_name);
 
-    // Check file extension and draw accordingly
     if (strstr(file_name, ".bmp") != NULL) {
-        display_draw_image(file_path); // Display image
+        display_draw_image(file_path);
     } else if (strstr(file_name, ".log") != NULL) {
-        FILE *fp = fopen(file_path, "r"); // Open file
+        FILE *fp = fopen(file_path, "r");
         if (fp != NULL) {
             char text[MAX_TEXT_SIZE];
-            // Read file content
             if (fread(text, 1, MAX_TEXT_SIZE - 1, fp) > 0) {
-                text[MAX_TEXT_SIZE - 1] = '\0'; // Null-terminate string
-                display_draw_string(0, 0, text, &Font8, BACKGROUND_COLOR,
-                                    FONT_COLOR); // Display text
+                text[MAX_TEXT_SIZE - 1] = '\0';
+                display_draw_string(0, 0, text, &Font8, BACKGROUND_COLOR, FONT_COLOR);
             }
-            fclose(fp); // Close file
+            fclose(fp);
         } else {
-            log_error("Could not open file %s", file_path); // Log error if file cannot be opened
+            log_error("Could not open file %s", file_path);
         }
     }
 
-    delay_ms(2000); // Display for 2 seconds
+    delay_ms(2000);
 }
 
-// Declaration (if the function is defined after its use in main)
 void redraw_bitmap(Bitmap *bmp);
 
 void redraw_bitmap(Bitmap *bmp) {
     if (bmp != NULL && bmp->pxl_data != NULL) {
-        // Make sure the BMP file has been correctly opened and processed before this point.
         display_draw_image_data(bmp->pxl_data, bmp->img_width, bmp->img_height);
     } else {
         fprintf(stderr, "Failed to load or process BMP file.\n");
@@ -143,21 +130,17 @@ void redraw_bitmap(Bitmap *bmp) {
 
 int centerX = DISPLAY_WIDTH / 2;
 int centerY = DISPLAY_HEIGHT / 2;
-// uint8_t imageBuffer[IMG_SIZE]; // Buffer to store the captured image
-//  Bitmap currentImage;
+
 Bitmap *load_bitmap(const char *filename);
 
 Bitmap *load_bitmap(const char *filename) {
-    // Allocate memory for the Bitmap struct
     Bitmap *bmp = malloc(sizeof(Bitmap));
     if (bmp == NULL) {
-        // Handle memory allocation failure
         return NULL;
     }
 
     FILE *file = fopen(filename, "rb");
     if (file == NULL) {
-        // Handle file opening failure
         free(bmp);
         return NULL;
     }
@@ -166,39 +149,33 @@ Bitmap *load_bitmap(const char *filename) {
 }
 
 void *send_image(void *buf) {
-    SEND_STATUS = 1; // Indicate that sending has started
-    uint8_t *imageBuffer =
-        (uint8_t *)buf; // Cast void pointer to uint8_t pointer for the image data
+    SEND_STATUS = 1;
+    uint8_t *imageBuffer = (uint8_t *)buf;
 
     Config config = {
-        .port = "2240",
-        .host = "ecen224.byu.edu",
-        .payload = imageBuffer,   // Use the passed buffer as the payload
-        .payload_size = IMG_SIZE, // Specify the size of the image data
-        .hw_id = "E5A8EF0E5"      // Your hardware ID
+        .port = "choose",
+        .host = "hostname",
+        .payload = imageBuffer,
+        .payload_size = IMG_SIZE,
+        .hw_id = "ID_2_Register_On_Webapp"
     };
     int sockfd = client_connect(&config);
     if (sockfd >= 0) {
-        client_send_image(sockfd, &config); // Send the image
-        client_receive_response(sockfd);    // Receive server response
-        client_close(sockfd);               // Close the connection
-        SEND_STATUS = 2;                    // Indicate success
+        client_send_image(sockfd, &config);
+        client_receive_response(sockfd);
+        client_close(sockfd);
+        SEND_STATUS = 2;
     } else {
         printf("Failed to connect to the server.\n");
-        SEND_STATUS = -1; // Indicate failure
+        SEND_STATUS = -1;
     }
 
-    // Optionally deal with the buffer if needed
-    // free(imageBuffer); // Only free if you're sure it should be done here
-
-    // use a delay for visual feedback, then reset the status?
     sleep(2);
     SEND_STATUS = 0;
 
     return NULL;
 }
 
-// Main function
 int main(void) {
     signal(SIGINT, intHandler);
     log_info("Starting...");
@@ -245,7 +222,6 @@ int main(void) {
         }
 
         if (button_center() == 0) {
-
             display_clear(BACKGROUND_COLOR);
             display_draw_string(10, 10, "Say cheese!", &Font8, BACKGROUND_COLOR, FONT_COLOR);
 
@@ -259,7 +235,6 @@ int main(void) {
             display_draw_image_data(bmp.pxl_data, 128, 128);
 
             while (true) {
-
                 if (button_left() == 0) {
                     reset_pixel_data(&bmp);
                     remove_color_channel(BLUE_CHANNEL, &bmp);
@@ -293,7 +268,6 @@ int main(void) {
                 }
 
                 if (button_center() == 0) {
-
                     pthread_t send_thread;
                     pthread_create(&send_thread, NULL, send_image, (void *)my_new_buf);
 
@@ -310,7 +284,6 @@ int main(void) {
             draw_menu(entries, num_entries, selected);
 
             while (button_center() == 0) {
-
                 delay_ms(1);
             }
         }
