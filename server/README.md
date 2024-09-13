@@ -10,7 +10,7 @@ mkdir photos                    # Make the folder for photos
 python app.py                   # Run the server
 ```
 
-Try an older version of Python if this doesn't work ^^
+Pton 3.12 has a compoiling issue that fails to build the wheel for multi_dict and several others so the workaround for this is to use Python 3.10.11. 
 
 This create two servers:
 
