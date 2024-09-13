@@ -1,0 +1,4 @@
+.venv
+photos/*
+!photos/123456789
+client_lab_server.log*
