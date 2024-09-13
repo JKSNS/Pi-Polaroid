@@ -10,7 +10,15 @@ mkdir photos                    # Make the folder for photos
 python app.py                   # Run the server
 ```
 
-Python 3.12 has a compoiling issue that fails to build the wheel for multi_dict and several others so the workaround for this is to use Python 3.10.11. 
+Python 3.12 has a compiling issue that fails to build the wheel for multi_dict and several others so the workaround for this is to use: 
+
+pip cache purge
+
+apt install python3.12-dev
+sudo apt-get install python3-dev build-essential
+sudo apt-get install libssl-dev libffi-dev
+pip install --upgrade pip setuptools wheel
+pip install aiohttp==3.9.0b0
 
 
 This create two servers:
