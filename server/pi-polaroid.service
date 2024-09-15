@@ -1,0 +1,10 @@
+[Unit]
+Description=Doorbell Service for Pi-Polaroid
+
+[Service]
+User=root
+WorkingDirectory=/home/pipolaroid/Pi-Polaroid/doorbell
+ExecStart=/usr/bin/sudo /home/pipolaroid/Pi-Polaroid/doorbell/main
+
+[Install]
+WantedBy=multi-user.target
