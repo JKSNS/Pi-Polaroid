@@ -1,0 +1,10 @@
+[Unit]
+Description= Pi-Polaroid Program
+
+[Service]
+User=pipolaroid
+WorkingDirectory=/home/pipolaroid/threaded-client/
+ExecStart=/bin/bash /home/pipolaroid/threaded-client/main
+
+[Install]
+WantedBy=multi-user.target
