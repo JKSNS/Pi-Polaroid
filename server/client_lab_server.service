@@ -2,7 +2,7 @@
 Description=Server for Pi-Polaroid!
 
 [Service]
-User=ta
+User=pipolaroid
 WorkingDirectory=/home/pi-polaroid-server/client_server
 ExecStart=/home/pi-polaroid-server/client_server/.venv/bin/python /home/pi-polaroid-server/client_server/app.py --delay 2 --timeout 5
 
