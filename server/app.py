@@ -24,6 +24,11 @@ HOMEWORK_ID_LENGTH = 9
 IMAGE_SIZE = 49206
 ROOT_DIR = "photos"
 
+# Define AppKeys globally so they are accessible throughout the application
+IMAGE_PORT_KEY = web.AppKey('image_port')
+DELAY_KEY = web.AppKey('delay')
+TIMEOUT_KEY = web.AppKey('timeout')
+
 # Utility functions for error handling and logging
 async def send_error(writer, message):
     writer.write(message)
@@ -132,7 +137,7 @@ async def delete_image(request):
 # Background tasks setup
 async def start_background_tasks(app):
     app["image_server"] = asyncio.create_task(
-        image_server(app["image_port"], app["delay"], app["timeout"])
+        image_server(app[IMAGE_PORT_KEY], app[DELAY_KEY], app[TIMEOUT_KEY])
     )
 
 async def cleanup_background_tasks(app):
@@ -155,10 +160,8 @@ def get_relative_time(input):
 # Main function to run the web and TCP server
 def run(image_port=2240, web_port=2241, delay=0, timeout=5):
     app = web.Application()
-    IMAGE_PORT_KEY = web.AppKey('image_port')
-    DELAY_KEY = web.AppKey('delay')
-    TIMEOUT_KEY = web.AppKey('timeout')
-    
+
+    # Set values in the app
     app[IMAGE_PORT_KEY] = image_port
     app[DELAY_KEY] = delay
     app[TIMEOUT_KEY] = timeout
