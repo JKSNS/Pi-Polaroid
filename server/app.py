@@ -28,6 +28,8 @@ ROOT_DIR = "photos"
 IMAGE_PORT_KEY = web.AppKey('image_port')
 DELAY_KEY = web.AppKey('delay')
 TIMEOUT_KEY = web.AppKey('timeout')
+IMAGE_SERVER_KEY = web.AppKey('image_server')
+JINJA2_ENV_KEY = web.AppKey('jinja2_environment')  # AppKey for Jinja2 environment
 
 # Utility functions for error handling and logging
 async def send_error(writer, message):
@@ -136,13 +138,13 @@ async def delete_image(request):
 
 # Background tasks setup
 async def start_background_tasks(app):
-    app["image_server"] = asyncio.create_task(
+    app[IMAGE_SERVER_KEY] = asyncio.create_task(
         image_server(app[IMAGE_PORT_KEY], app[DELAY_KEY], app[TIMEOUT_KEY])
     )
 
 async def cleanup_background_tasks(app):
-    app["image_server"].cancel()
-    await app["image_server"]
+    app[IMAGE_SERVER_KEY].cancel()
+    await app[IMAGE_SERVER_KEY]
 
 # Utility functions for formatting time
 def get_time(input):
@@ -166,10 +168,11 @@ def run(image_port=2240, web_port=2241, delay=0, timeout=5):
     app[DELAY_KEY] = delay
     app[TIMEOUT_KEY] = timeout
 
-    # Setup templates
+    # Setup templates using JINJA2_ENV_KEY for the environment
     aiohttp_jinja2.setup(
         app,
         loader=jinja2.FileSystemLoader("templates"),
+        app_key=JINJA2_ENV_KEY,  # Use the AppKey for the Jinja2 environment
         filters=[("get_time", get_time), ("get_relative_time", get_relative_time)],
     )
 
