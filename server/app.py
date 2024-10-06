@@ -110,7 +110,7 @@ async def image_server(port, delay, timeout):
         await server.serve_forever()
 
 # HTTP handler to display images
-@aiohttp_jinja2.template("index.html")
+@aiohttp_jinja2.template("index.html", app_key=JINJA2_ENV_KEY)  # Use the correct AppKey
 async def index(request):
     homework_id = request.match_info["homework_id"]
     path = Path(ROOT_DIR) / homework_id
@@ -168,11 +168,11 @@ def run(image_port=2240, web_port=2241, delay=0, timeout=5):
     app[DELAY_KEY] = delay
     app[TIMEOUT_KEY] = timeout
 
-    # Setup templates using JINJA2_ENV_KEY for the environment
+    # Setup templates with JINJA2_ENV_KEY
     aiohttp_jinja2.setup(
         app,
         loader=jinja2.FileSystemLoader("templates"),
-        app_key=JINJA2_ENV_KEY,  # Use the AppKey for the Jinja2 environment
+        app_key=JINJA2_ENV_KEY,  # Use AppKey for the environment
         filters=[("get_time", get_time), ("get_relative_time", get_relative_time)],
     )
 
