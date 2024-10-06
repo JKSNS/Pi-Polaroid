@@ -155,9 +155,13 @@ def get_relative_time(input):
 # Main function to run the web and TCP server
 def run(image_port=2240, web_port=2241, delay=0, timeout=5):
     app = web.Application()
-    app["image_port"] = image_port
-    app["delay"] = delay
-    app["timeout"] = timeout
+    IMAGE_PORT_KEY = web.AppKey('image_port')
+    DELAY_KEY = web.AppKey('delay')
+    TIMEOUT_KEY = web.AppKey('timeout')
+    
+    app[IMAGE_PORT_KEY] = image_port
+    app[DELAY_KEY] = delay
+    app[TIMEOUT_KEY] = timeout
 
     # Setup templates
     aiohttp_jinja2.setup(
