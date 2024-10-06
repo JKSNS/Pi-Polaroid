@@ -40,3 +40,15 @@ sudo systemctl start pipolaroid.service   # Start service
 sudo systemctl enable pipolaroid.service  # Have service run on boot
 
 ```
+
+If you encounter an error because port 2241 was already in use by another process, preventing your app from binding to that port:
+
+Identify the process using the port:
+```bash
+sudo netstat -tulnp | grep 2241
+# Kill the process using that port (replace <PID> with the actual process ID from the previous command):
+```
+```bash
+sudo kill <PID>
+# This frees up the port, allowing your app to run successfully.
+```
